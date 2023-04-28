@@ -5,14 +5,20 @@ using UnityEngine;
 
 public class WorldCell : MonoBehaviour
 {
+    [SerializeField]
+    private GameObject cube;
     WorldCell[] neightbors;
     Vector2Int coordinates;
     Vector2 size;
     Color cellColor;
+    static Color RandomColor;
+    static bool colorGenerated=false;
     bool isEmpty;
 
-    public void Instantiate(int x, int y, Vector2 cellSize)
+   
+    public void InstantiateCell(int x, int y, Vector2 cellSize)
     {
+       
         size = cellSize;
         coordinates = new Vector2Int(x,y);
         transform.position = new Vector3(size.x * coordinates.x, 0, size.y * coordinates.y);
@@ -56,12 +62,22 @@ public class WorldCell : MonoBehaviour
     {
         isEmpty = false;
         SetColor(Color.black);
+       
     }
 
     public void Open()
     {
+
         isEmpty = true;
-        SetColor(Color.white);
+        if (!colorGenerated)
+        {
+        RandomColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+        colorGenerated = true;
+        }
+        SetColor(RandomColor);
+        //generates cube in the walkable path for the A* to use
+        var cubi = Instantiate(cube, gameObject.transform.position + new Vector3(Metrics.cellSize.y/2,0, Metrics.cellSize.x/2), gameObject.transform.rotation);
+        cubi.transform.localScale = new Vector3(Metrics.cellSize.y, Metrics.cellSize.x, Metrics.cellSize.y);
     }
 
     public Vector2Int GetCoordinates()
@@ -79,6 +95,17 @@ public class WorldCell : MonoBehaviour
         }
         neightbors[(int)neightborPosition] = cell; // Vecino ida
         cell.neightbors[(int)neightborPosition + (int)(Metrics.neightborAmount * 0.5f)] = this; // Vecino vuelta
+    }
+
+    //returns cell neighbour
+    public WorldCell[] GetNeighbours(WorldCell cell)
+    {
+        return cell.neightbors;
+    }
+
+    public WorldCell GetNeighbour(WorldCell cell,int index)
+    {
+        return cell.neightbors[index];
     }
 
     public int EmptyNeightbors()

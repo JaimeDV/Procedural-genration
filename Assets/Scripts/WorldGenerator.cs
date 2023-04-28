@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class WorldGenerator : MonoBehaviour
 {
@@ -24,6 +27,7 @@ public class WorldGenerator : MonoBehaviour
 
     private void Start()
     {
+        GenerateCellularAutomata();
         GenerateWorldDrunkenWalk();
     }
 
@@ -38,6 +42,36 @@ public class WorldGenerator : MonoBehaviour
             Debug.Log("World generated");
         }
     }
+    void GenerateCellularAutomata()/// creates celullar automata based on https://bronsonzgeb.com/index.php/2022/01/30/procedural-generation-with-cellular-automata/ & https://www.youtube.com/watch?v=v7yyZZjF1z4&ab_channel=SebastianLague 
+    {
+        GenerateWorld();
+
+        generateCelullarPath();
+
+
+        meshGenerator.GenerateMesh(cells);
+       
+
+    }
+    void generateCelullarPath()
+    {
+        for (int y = 0; y < Metrics.worldSize.y; y++)
+        {
+           
+            for (int x = 0; x < Metrics.worldSize.x; x++)
+            {
+                int index = x + y * Metrics.worldSize.x;
+                GameObject newCell = Instantiate(cellPrefab, transform);
+                WorldCell cell = newCell.GetComponent<WorldCell>();
+                cell.InstantiateCell(x, y, Metrics.cellSize);
+                cells[index] = cell;
+
+                //int liveCellCount = cell +  cell.GetNeighbour(cell,index);
+            }
+        }
+    }
+
+   
 
     void GenerateWorldDrunkenWalk()
     {
@@ -154,7 +188,7 @@ public class WorldGenerator : MonoBehaviour
                 int index = x + y * Metrics.worldSize.x;
                 GameObject newCell = Instantiate(cellPrefab,transform);
                 WorldCell cell = newCell.GetComponent<WorldCell>();
-                cell.Instantiate(x, y, Metrics.cellSize);
+                cell.InstantiateCell(x, y, Metrics.cellSize);
                 cells[index] = cell;
 
                 // Has something on left (not 1st column)
@@ -180,6 +214,49 @@ public class WorldGenerator : MonoBehaviour
             }
         }
     }
+
+
+    //un used
+    //WorldCell[,] GenerateWorldGiver() //tries to give the grid to the A* algoritm
+    //{
+    //    WorldCell[,] logicGrid;
+    //    logicGrid = new WorldCell[Metrics.worldSize.x, Metrics.worldSize.y];
+    //    for (int y = 0; y < Metrics.worldSize.y; y++)
+    //    {
+    //        for (int x = 0; x < Metrics.worldSize.x; x++)
+    //        {
+    //            int index = x + y * Metrics.worldSize.x;
+    //            GameObject newCell = Instantiate(cellPrefab, transform);
+    //            WorldCell cell = newCell.GetComponent<WorldCell>();
+    //            cell.InstantiateCell(x, y, Metrics.cellSize);
+
+    //            cells[index] = cell;
+
+    //            // Has something on left (not 1st column)
+    //            if (x != 0 || x % Metrics.worldSize.x != 0)
+    //            {
+    //                cell.SetNeightbor(cells[index - 1], Neightbors.Left);
+    //            }
+    //            // Has somthing below (not 1st row)
+    //            if (y != 0)
+    //            {
+    //                cell.SetNeightbor(cells[index - Metrics.worldSize.x], Neightbors.Down);
+    //                // Has something below left (not 1st column)
+    //                if (x != 0 || x % Metrics.worldSize.x != 0)
+    //                {
+    //                    cell.SetNeightbor(cells[index - Metrics.worldSize.x - 1], Neightbors.DownLeft);
+    //                }
+    //                // Has something below right (not last column)
+    //                if ((x + 1) % Metrics.worldSize.x != 0)
+    //                {
+    //                    cell.SetNeightbor(cells[index - Metrics.worldSize.x + 1], Neightbors.DownRight);
+    //                }
+    //            }
+    //            logicGrid[y, x] = cell;
+    //        }
+    //    }
+    //    return logicGrid;
+    //}
 
     RoomTreeNode ChopSpace()
     {
