@@ -29,7 +29,7 @@ public class Grid : MonoBehaviour
 
     public bool alternate;
 
-    public static event System.Action<WorldCell[,]> PassGrid;
+    //public static event System.Action<WorldCell[,]> PassGrid;
 
     private void Start()
     {
@@ -43,6 +43,21 @@ public class Grid : MonoBehaviour
         else
         {
         CreateGrid();
+
+        }
+    }
+    private void RegenerateGrid()
+    {
+        nodeDiameter = nodeRadius * 2;
+        gridSizeX = Mathf.RoundToInt(worldSize.x / nodeDiameter);
+        gridSizeY = Mathf.RoundToInt(worldSize.y / nodeDiameter);
+        if (alternate)
+        {
+            CreateGridAlternate();
+        }
+        else
+        {
+            CreateGrid();
 
         }
     }
@@ -85,7 +100,7 @@ public class Grid : MonoBehaviour
             {
                 Vector3 worldPoint = bottomLeft + Vector3.right * (x * nodeDiameter + nodeRadius) + Vector3.forward * (y * nodeDiameter + nodeRadius);//Get the world co ordinates of the bottom left of the graph
                 bool Wall = false; //it is backwards but it works, don't touch it
-
+                
                 if (Physics.CheckSphere(worldPoint, nodeRadius, wallMask))
                 {
                     Wall = true;
@@ -101,6 +116,11 @@ public class Grid : MonoBehaviour
                 nodeArray[x, y] = new Node(Wall, Water, worldPoint, x, y);
             }
         }
+            GameObject[] cubes = GameObject.FindGameObjectsWithTag("PathFinding");
+            foreach (GameObject go in cubes)
+            {
+                Destroy(go);
+            }
     }
     public List<Node> GetNeighboringNodes(Node node)
     {
@@ -184,8 +204,12 @@ public class Grid : MonoBehaviour
             }
         }
     }
-    //private void OnEnable()
-    //{
-    //    WorldCell[,] logicGrid=PassGrid();
-    //}
+    private void OnEnable()
+    {
+        WorldGenerator.regenerateGrid += RegenerateGrid;
+    }
+    public void OnDisable()
+    {
+        WorldGenerator.regenerateGrid -= RegenerateGrid;
+    }
 }

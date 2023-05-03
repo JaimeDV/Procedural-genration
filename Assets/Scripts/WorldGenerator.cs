@@ -12,6 +12,8 @@ public class WorldGenerator : MonoBehaviour
     WorldCell[] cells;
     List<WorldCell> openCells;
     List<Room> rooms;
+    public static event System.Action regenerateGrid;
+    private string pathfindingTag="PathFinding"; //it works i don't know how , don't touch it
 
     private void Awake()
     {
@@ -27,15 +29,20 @@ public class WorldGenerator : MonoBehaviour
 
     private void Start()
     {
+
         GenerateCellularAutomata();
         GenerateWorldDrunkenWalk();
+        regenerateGrid();
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            CleanPathfinding();
             ReGenerateWorldDrunkenWalk();
+            CleanPathfinding();
+            regenerateGrid();
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
@@ -45,13 +52,21 @@ public class WorldGenerator : MonoBehaviour
     void GenerateCellularAutomata()/// creates celullar automata based on https://bronsonzgeb.com/index.php/2022/01/30/procedural-generation-with-cellular-automata/ & https://www.youtube.com/watch?v=v7yyZZjF1z4&ab_channel=SebastianLague 
     {
         GenerateWorld();
-
         generateCelullarPath();
 
 
         meshGenerator.GenerateMesh(cells);
        
 
+    }
+
+    void CleanPathfinding()
+    {
+        GameObject[] cubes = GameObject.FindGameObjectsWithTag(pathfindingTag);
+        foreach (GameObject go in cubes)
+        {
+            Destroy(go);
+        }
     }
     void generateCelullarPath()
     {
