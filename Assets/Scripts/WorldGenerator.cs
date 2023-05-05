@@ -31,7 +31,7 @@ public class WorldGenerator : MonoBehaviour
     {
 
         GenerateCellularAutomata();
-        GenerateWorldDrunkenWalk();
+        //GenerateWorldDrunkenWalk();
         regenerateGrid();
     }
 
@@ -70,6 +70,7 @@ public class WorldGenerator : MonoBehaviour
     }
     void generateCelullarPath()
     {
+        Random.InitState((int)System.DateTime.Now.Ticks);
         for (int y = 0; y < Metrics.worldSize.y; y++)
         {
            
@@ -80,7 +81,19 @@ public class WorldGenerator : MonoBehaviour
                 WorldCell cell = newCell.GetComponent<WorldCell>();
                 cell.InstantiateCell(x, y, Metrics.cellSize);
                 cells[index] = cell;
-
+                if(x==0 || x==Metrics.worldSize.x-1 || y==0 || y == Metrics.worldSize.y - 1)
+                {
+                    cell.Close();
+                }
+                else
+                {
+                    var random = Random.Range(0, 100);
+                    var randomFill = Random.Range(0, 100);
+                    if (random <= randomFill)
+                    {
+                        cell.Open();
+                    }
+                }
                 //int liveCellCount = cell +  cell.GetNeighbour(cell,index);
             }
         }
