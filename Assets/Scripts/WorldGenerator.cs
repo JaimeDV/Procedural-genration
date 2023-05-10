@@ -1,19 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Runtime.CompilerServices;
+using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class WorldGenerator : MonoBehaviour
 {
     public GameObject cellPrefab;
-    WorldMesh meshGenerator;
-    WorldCell[] cells;
-    List<WorldCell> openCells;
-    List<Room> rooms;
+    private WorldMesh meshGenerator;
+    private WorldCell[] cells;
+    private List<WorldCell> openCells;
+    private List<Room> rooms;
+
     public static event System.Action regenerateGrid;
-    private string pathfindingTag="PathFinding"; //it works i don't know how , don't touch it
+
+    private string pathfindingTag = "PathFinding"; //it works i don't know how , don't touch it
 
     private void Awake()
     {
@@ -29,8 +31,8 @@ public class WorldGenerator : MonoBehaviour
 
     private void Start()
     {
-
         GenerateCellularAutomata();
+        SmoothCellular(2);
         //GenerateWorldDrunkenWalk();
         regenerateGrid();
     }
@@ -41,6 +43,7 @@ public class WorldGenerator : MonoBehaviour
         {
             CleanPathfinding();
             ReGenerateWorldDrunkenWalk();
+            SmoothCellular(2);
             CleanPathfinding();
             regenerateGrid();
         }
@@ -49,18 +52,16 @@ public class WorldGenerator : MonoBehaviour
             Debug.Log("World generated");
         }
     }
-    void GenerateCellularAutomata()/// creates celullar automata based on https://bronsonzgeb.com/index.php/2022/01/30/procedural-generation-with-cellular-automata/ & https://www.youtube.com/watch?v=v7yyZZjF1z4&ab_channel=SebastianLague 
+
+    private void GenerateCellularAutomata()/// creates celullar automata based on https://bronsonzgeb.com/index.php/2022/01/30/procedural-generation-with-cellular-automata/ & https://www.youtube.com/watch?v=v7yyZZjF1z4&ab_channel=SebastianLague
     {
         GenerateWorld();
         generateCelullarPath();
 
-
         meshGenerator.GenerateMesh(cells);
-       
-
     }
 
-    void CleanPathfinding()
+    private void CleanPathfinding()
     {
         GameObject[] cubes = GameObject.FindGameObjectsWithTag(pathfindingTag);
         foreach (GameObject go in cubes)
@@ -68,12 +69,12 @@ public class WorldGenerator : MonoBehaviour
             Destroy(go);
         }
     }
-    void generateCelullarPath()
+
+    private void generateCelullarPath() //generates a celullar grid based on https://www.youtube.com/watch?v=v7yyZZjF1z4&t=656s&ab_channel=SebastianLague
     {
         Random.InitState((int)System.DateTime.Now.Ticks);
         for (int y = 0; y < Metrics.worldSize.y; y++)
         {
-           
             for (int x = 0; x < Metrics.worldSize.x; x++)
             {
                 int index = x + y * Metrics.worldSize.x;
@@ -81,7 +82,7 @@ public class WorldGenerator : MonoBehaviour
                 WorldCell cell = newCell.GetComponent<WorldCell>();
                 cell.InstantiateCell(x, y, Metrics.cellSize);
                 cells[index] = cell;
-                if(x==0 || x==Metrics.worldSize.x-1 || y==0 || y == Metrics.worldSize.y - 1)
+                if (x == 0 || x == Metrics.worldSize.x - 1 || y == 0 || y == Metrics.worldSize.y - 1)
                 {
                     cell.Close();
                 }
@@ -99,9 +100,82 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-   
+    private void SmoothCellular(int iterations)//cellular smothing for all other algortihms i only test it on druken walk
+    {
+       
+        WorldCell cell;
+        int index;
+        for (int z = 0; z < iterations; z++)
+        {
+            for (int y = 0; y < Metrics.worldSize.y; y++)
+            {
+                for (int x = 0; x < Metrics.worldSize.x; x++)
+                {
+                    index = x + y * Metrics.worldSize.x;
+                    cell = cells[index];
+                    int neighbourTiles=GetSurrodingWalls(y, x);
+                    Debug.Log(neighbourTiles);
+                    if (neighbourTiles>=4 && neighbourTiles<=8)
+                    {
+                        var random = Random.Range(0, 50);
+                        var randomFill = Random.Range(0, 100);
+                        if (random <= randomFill)
+                        {
+                            Debug.Log("Closing");
+                            cell.Open();
+                        }
+                    }
+                    else
+                    {
+                        var random = Random.Range(0, 100);
+                        var randomFill = Random.Range(0, 100);
+                        if (random <= randomFill)
+                        {
+                            cell.Close();
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-    void GenerateWorldDrunkenWalk()
+    private int GetSurrodingWalls(int gridY, int gridX)
+    {
+        int walls = 0;
+        WorldCell[] cellsCopy;
+        WorldCell cell;
+        int index = gridX + gridY * Metrics.worldSize.x;
+
+        cellsCopy = cells;
+        cell= cellsCopy[index];
+        for (int neigbourY = gridY - 1; neigbourY <= gridY + 1; neigbourY++)
+        {
+            {
+                for (int neigbourX = gridX - 1; neigbourX <= gridX + 1; neigbourX++)
+                {
+                    index = neigbourX + neigbourY * Metrics.worldSize.x;
+                    if (neigbourX >= 0 && neigbourY >= 0 && neigbourY<Metrics.worldSize.y && neigbourX< Metrics.worldSize.x)
+                    {
+
+                        if (neigbourX != gridX || neigbourY != gridY)
+                        {
+                            if (cells[index].isEmpty!)
+                            {
+                                walls++; //IS WALL
+                            }
+
+                          
+                        }
+                    }
+                    
+                    
+                }
+            }
+        }
+        return walls;
+    }
+
+    private void GenerateWorldDrunkenWalk()
     {
         GenerateWorld();
 
@@ -113,7 +187,7 @@ public class WorldGenerator : MonoBehaviour
         centerCell.Open();
         openCells.Add(centerCell);
 
-        while(drunkCounter < Metrics.walks)
+        while (drunkCounter < Metrics.walks)
         {
             GenerateDrunkPath();
             drunkCounter++;
@@ -122,14 +196,14 @@ public class WorldGenerator : MonoBehaviour
         meshGenerator.GenerateMesh(cells);
     }
 
-    void ReGenerateWorldDrunkenWalk()
+    private void ReGenerateWorldDrunkenWalk()
     {
         CleanCells();
         openCells.Clear();
         GenerateWorldDrunkenWalk();
     }
 
-    void GenerateWorldBSP()
+    private void GenerateWorldBSP()
     {
         GenerateWorld();
 
@@ -140,33 +214,33 @@ public class WorldGenerator : MonoBehaviour
         meshGenerator.GenerateMesh(cells);
     }
 
-    void RegenerateWorldBSP()
+    private void RegenerateWorldBSP()
     {
         CleanCells();
         rooms.Clear();
         GenerateWorldBSP();
     }
 
-    void RegenerateWorldCA()
+    private void RegenerateWorldCA()
     {
         CleanCells();
         rooms.Clear();
         GenerateWorldCA();
     }
 
-    void GenerateWorldCA()
+    private void GenerateWorldCA()
     {
         GenerateWorld();
         OrderWorld();
         meshGenerator.GenerateMesh(cells);
     }
 
-    void OrderWorld()
+    private void OrderWorld()
     {
-        foreach(WorldCell cell in cells)
+        foreach (WorldCell cell in cells)
         {
             int amount = cell.EmptyNeightbors();
-            if(amount <= 0 || amount > 4)
+            if (amount <= 0 || amount > 4)
             {
                 cell.Close();
             }
@@ -177,13 +251,13 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    void GenerateDrunkPath()
+    private void GenerateDrunkPath()
     {
         // Get a random open cell
         WorldCell curentCell = openCells[Random.Range(0, openCells.Count)];
         int walkLenght = 0;
 
-        while(walkLenght <= Metrics.walkDistance)
+        while (walkLenght <= Metrics.walkDistance)
         {
             // Select a random neigtbor
             curentCell = curentCell.GetRandomNeightbor();
@@ -197,7 +271,7 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    void RegenerateWorldBasicRoomGeneration()
+    private void RegenerateWorldBasicRoomGeneration()
     {
         CleanCells();
         GenerateWorld();
@@ -207,25 +281,25 @@ public class WorldGenerator : MonoBehaviour
         meshGenerator.GenerateMesh(cells);
     }
 
-    void GenerateWorld()
+    private void GenerateWorld()
     {
-        for(int y = 0; y < Metrics.worldSize.y; y++)
+        for (int y = 0; y < Metrics.worldSize.y; y++)
         {
-            for(int x = 0; x < Metrics.worldSize.x; x++)
+            for (int x = 0; x < Metrics.worldSize.x; x++)
             {
                 int index = x + y * Metrics.worldSize.x;
-                GameObject newCell = Instantiate(cellPrefab,transform);
+                GameObject newCell = Instantiate(cellPrefab, transform);
                 WorldCell cell = newCell.GetComponent<WorldCell>();
                 cell.InstantiateCell(x, y, Metrics.cellSize);
                 cells[index] = cell;
 
                 // Has something on left (not 1st column)
-                if(x!= 0 || x % Metrics.worldSize.x != 0)
+                if (x != 0 || x % Metrics.worldSize.x != 0)
                 {
                     cell.SetNeightbor(cells[index - 1], Neightbors.Left);
                 }
                 // Has somthing below (not 1st row)
-                if(y!= 0)
+                if (y != 0)
                 {
                     cell.SetNeightbor(cells[index - Metrics.worldSize.x], Neightbors.Down);
                     // Has something below left (not 1st column)
@@ -242,7 +316,6 @@ public class WorldGenerator : MonoBehaviour
             }
         }
     }
-
 
     //un used
     //WorldCell[,] GenerateWorldGiver() //tries to give the grid to the A* algoritm
@@ -286,7 +359,7 @@ public class WorldGenerator : MonoBehaviour
     //    return logicGrid;
     //}
 
-    RoomTreeNode ChopSpace()
+    private RoomTreeNode ChopSpace()
     {
         RoomTreeNode worldPartition = new RoomTreeNode(cells, Metrics.worldSize);
         RoomTreeNode[] leafPartitions;
@@ -305,7 +378,7 @@ public class WorldGenerator : MonoBehaviour
         return worldPartition;
     }
 
-    void GenerateAllRoomsBSP(RoomTreeNode tree)
+    private void GenerateAllRoomsBSP(RoomTreeNode tree)
     {
         RoomTreeNode[] leafPartitions = tree.GetLeafs();
         foreach (RoomTreeNode node in leafPartitions)
@@ -314,19 +387,19 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    void CleanCells()
+    private void CleanCells()
     {
-        for(int aux = cells.Length - 1; aux >= 0; aux--)
+        for (int aux = cells.Length - 1; aux >= 0; aux--)
         {
             Destroy(cells[aux].gameObject);
         }
     }
 
-    void GenerateAllRooms()
+    private void GenerateAllRooms()
     {
         rooms.Clear();
         int amountOfRooms = 0;
-        while(amountOfRooms < Metrics.amountOfRooms)
+        while (amountOfRooms < Metrics.amountOfRooms)
         {
             if (GenerateRoom())
             {
@@ -335,7 +408,7 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    bool GenerateRoom()
+    private bool GenerateRoom()
     {
         Room newRoom = new Room();
         newRoom.GenerateRandomRoom();
@@ -350,30 +423,30 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    void GenerateAllCorridorsNonLineal() 
+    private void GenerateAllCorridorsNonLineal()
     {
-        for(int exp = 1; exp <= Metrics.desiredPartitionAmount; exp++)
+        for (int exp = 1; exp <= Metrics.desiredPartitionAmount; exp++)
         {
-            for (int index = 0; index < rooms.Count; )
+            for (int index = 0; index < rooms.Count;)
             {
                 int jump = (int)Mathf.Pow(2, exp);
                 GenerateCorridor(rooms[index].GetCenter(), rooms[index + jump - 1].GetCenter());
-                index = index + jump; 
+                index = index + jump;
             }
         }
     }
 
-    void GenerateAllCorridors()
+    private void GenerateAllCorridors()
     {
         rooms.Sort();
 
-        for(int roomCorridor = 0; roomCorridor < rooms.Count - 1; roomCorridor++)
+        for (int roomCorridor = 0; roomCorridor < rooms.Count - 1; roomCorridor++)
         {
             GenerateCorridor(rooms[roomCorridor].GetCenter(), rooms[roomCorridor + 1].GetCenter());
         }
     }
 
-    void GenerateCorridor(Vector2Int start, Vector2Int end)
+    private void GenerateCorridor(Vector2Int start, Vector2Int end)
     {
         Vector2Int halfCorridorCoords;
         if (Random.Range(0, 2) == 0) // Horizontal 1st
@@ -388,12 +461,12 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    Vector2Int HorizontalCorridor(Vector2Int start, Vector2Int end)
+    private Vector2Int HorizontalCorridor(Vector2Int start, Vector2Int end)
     {
         Vector2Int currentPos = start;
-        while(currentPos.x != end.x)
+        while (currentPos.x != end.x)
         {
-            if(currentPos.x < end.x)
+            if (currentPos.x < end.x)
             {
                 currentPos.x++;
             }
@@ -409,8 +482,7 @@ public class WorldGenerator : MonoBehaviour
         return currentPos;
     }
 
-
-    Vector2Int VertialCorridor(Vector2Int start, Vector2Int end)
+    private Vector2Int VertialCorridor(Vector2Int start, Vector2Int end)
     {
         Vector2Int currentPos = start;
         while (currentPos.y != end.y)
@@ -431,7 +503,7 @@ public class WorldGenerator : MonoBehaviour
         return currentPos;
     }
 
-    WorldCell GetCellFromCoordinates(Vector2Int coords)
+    private WorldCell GetCellFromCoordinates(Vector2Int coords)
     {
         return cells[coords.x + coords.y * Metrics.worldSize.x];
     }

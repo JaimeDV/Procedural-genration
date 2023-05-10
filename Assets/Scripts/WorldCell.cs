@@ -13,7 +13,7 @@ public class WorldCell : MonoBehaviour
     Color cellColor;
     static Color RandomColor;
     static bool colorGenerated=false;
-    bool isEmpty;
+    public bool isEmpty;
  
 
     public void InstantiateCell(int x, int y, Vector2 cellSize)
