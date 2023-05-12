@@ -29,6 +29,8 @@ public class Grid : MonoBehaviour
 
     public bool alternate;
 
+    public static event System.Action<Node[,]> GetGrid;
+
     //public static event System.Action<WorldCell[,]> PassGrid;
 
     private void Start()
@@ -54,6 +56,7 @@ public class Grid : MonoBehaviour
         if (alternate)
         {
             CreateGridAlternate();
+            GetGrid(nodeArray);
         }
         else
         {
@@ -166,44 +169,48 @@ public class Grid : MonoBehaviour
 
         return nodeArray[ix, iy];
     }
-
-
-    private void OnDrawGizmos() //it drains a lot when you have 20 of then
+    public Node[,] getNodeArray()
     {
-
-        Gizmos.DrawWireCube(transform.position, new Vector3(worldSize.x, 1, worldSize.y));
-
-        if (nodeArray != null)
-        {
-            foreach (Node n in nodeArray)
-            {
-                if (n.isNotWall)
-                {
-                    Gizmos.color = Color.white;
-                }
-                if (!n.isNotWater)
-                {
-                    Gizmos.color = Color.blue;
-                }
-                if (!n.isNotWall)
-                {
-                    Gizmos.color = Color.yellow;
-                }
-
-
-                if (FinalPath != null)
-                {
-                    if (FinalPath.Contains(n))
-                    {
-                        Gizmos.color = Color.red;
-                    }
-
-                }
-
-                Gizmos.DrawCube(n.position, Vector3.one * (nodeDiameter - distanceBetweenNodes));
-            }
-        }
+        return nodeArray;
     }
+
+
+    //private void OnDrawGizmos() //it drains a lot when you have 20 of then
+    //{
+
+    //    Gizmos.DrawWireCube(transform.position, new Vector3(worldSize.x, 1, worldSize.y));
+
+    //    if (nodeArray != null)
+    //    {
+    //        foreach (Node n in nodeArray)
+    //        {
+    //            if (n.isNotWall)
+    //            {
+    //                Gizmos.color = Color.white;
+    //            }
+    //            if (!n.isNotWater)
+    //            {
+    //                Gizmos.color = Color.blue;
+    //            }
+    //            if (!n.isNotWall)
+    //            {
+    //                Gizmos.color = Color.yellow;
+    //            }
+
+
+    //            if (FinalPath != null)
+    //            {
+    //                if (FinalPath.Contains(n))
+    //                {
+    //                    Gizmos.color = Color.red;
+    //                }
+
+    //            }
+
+    //            Gizmos.DrawCube(n.position, Vector3.one * (nodeDiameter - distanceBetweenNodes));
+    //        }
+    //    }
+    //}
     private void OnEnable()
     {
         WorldGenerator.regenerateGrid += RegenerateGrid;

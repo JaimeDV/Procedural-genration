@@ -14,7 +14,8 @@ public class WorldGenerator : MonoBehaviour
     private List<Room> rooms;
 
     public static event System.Action regenerateGrid;
-
+    public static event System.Action destroyWorld;
+    public static event System.Action createWorld;
     private string pathfindingTag = "PathFinding"; //it works i don't know how , don't touch it
 
     private void Awake()
@@ -31,10 +32,11 @@ public class WorldGenerator : MonoBehaviour
 
     private void Start()
     {
-        GenerateCellularAutomata();
+        GenerateWorldDrunkenWalk();
         SmoothCellular(2);
         //GenerateWorldDrunkenWalk();
         regenerateGrid();
+        createWorld();
     }
 
     private void Update()
@@ -46,6 +48,8 @@ public class WorldGenerator : MonoBehaviour
             SmoothCellular(2);
             CleanPathfinding();
             regenerateGrid();
+            destroyWorld();
+            createWorld();
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
