@@ -41,20 +41,20 @@ public class WorldGenerator : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            CleanPathfinding();
-            ReGenerateWorldDrunkenWalk();
-            SmoothCellular(2);
-            CleanPathfinding();
-            regenerateGrid();
-            destroyWorld();
-            createWorld();
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            Debug.Log("World generated");
-        }
+        //if (Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    CleanPathfinding();
+        //    ReGenerateWorldDrunkenWalk();
+        //    SmoothCellular(2);
+        //    CleanPathfinding();
+        //    regenerateGrid();
+        //    destroyWorld();
+        //    createWorld();
+        //}
+        //if (Input.GetKeyDown(KeyCode.D))
+        //{
+        //    Debug.Log("World generated");
+        //}
     }
 
     private void GenerateCellularAutomata()/// creates celullar automata based on https://bronsonzgeb.com/index.php/2022/01/30/procedural-generation-with-cellular-automata/ & https://www.youtube.com/watch?v=v7yyZZjF1z4&ab_channel=SebastianLague
@@ -118,7 +118,6 @@ public class WorldGenerator : MonoBehaviour
                     index = x + y * Metrics.worldSize.x;
                     cell = cells[index];
                     int neighbourTiles=GetSurrodingWalls(y, x);
-                    Debug.Log(neighbourTiles);
                     if (neighbourTiles>=4 && neighbourTiles<=8)
                     {
                         var random = Random.Range(0, 50);

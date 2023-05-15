@@ -30,11 +30,6 @@ public class S_ModePlayer : MonoBehaviour
     [SerializeField]
     private float speed;
 
-    private bool calm;
-
-    [SerializeField]
-    private bool human;
-
     [SerializeField]
     private float slowDownDistance;
 
@@ -45,8 +40,7 @@ public class S_ModePlayer : MonoBehaviour
 
     private void Start()
     {
-        calm = true;
-        grid = GetComponent<Grid>();
+      
         finalPath = grid.FinalPath;
         CheckNode();
         velocity = Vector3.zero;
@@ -54,8 +48,7 @@ public class S_ModePlayer : MonoBehaviour
 
     private void Update()
     {
-        if (calm)
-        {
+        
             startDelay++;
             startDelay += Time.deltaTime;
             if (startDelay > 5)
@@ -66,14 +59,8 @@ public class S_ModePlayer : MonoBehaviour
                 CheckNode();
             }
             MoveToTarget();
-        }
-        else if (human)
-        {
-            //grid = GetComponent<Grid>();
-            finalPath = grid.FinalPath;
-            CheckNode();
-            MoveToTarget();
-        }
+        
+       
     }
 
     private void CheckNode()
@@ -123,9 +110,7 @@ public class S_ModePlayer : MonoBehaviour
         startDelay = 0;
     }
 
-    public void setEndpoint()
-    {
-    }
+    
 
   
 }

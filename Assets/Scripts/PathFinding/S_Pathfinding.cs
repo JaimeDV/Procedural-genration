@@ -6,8 +6,11 @@ public class S_Pathfinding : MonoBehaviour
     [SerializeField]
     private Grid gridReference;
 
-    public Transform startPosition;
-    public Transform targetPosition;
+    public GameObject startPosition;
+    public GameObject targetPosition;
+
+    [SerializeField]
+    private bool alternate;
 
     private void Awake()
     {
@@ -16,11 +19,25 @@ public class S_Pathfinding : MonoBehaviour
 
     private void Update()
     {
-        FindPath(startPosition.position, targetPosition.position);
+        if (!alternate)
+        {
+            if (startPosition.transform.position != null && targetPosition.transform.position != null)
+            {
+                FindPath(startPosition.transform.position, targetPosition.transform.position);
+            }
+        }
+        else
+        {
+            if (startPosition.transform.position != null && targetPosition.transform.position != null)
+            {
+                FindPathAlt(startPosition.transform.position, targetPosition.transform.position);
+            }
+        }
     }
 
     public void FindPath(Vector3 starter, Vector3 target)
     {
+        Debug.LogError("El proibelma esta aqui");
         Node startNode = gridReference.NodeFromWorldPoint(starter);
         Node targetNode = gridReference.NodeFromWorldPoint(target);
 
@@ -51,6 +68,61 @@ public class S_Pathfinding : MonoBehaviour
             {
                 //if i add water reconigcion it should be here
                 if (!NeighborNode.isNotWall || ClosedList.Contains(NeighborNode))
+                {
+                    continue;
+                }
+                int MoveCost = CurrentNode.igCost + GetManhattenDistance(CurrentNode, NeighborNode);
+                if (!NeighborNode.isNotWater)//water is more expensive
+                {
+                    MoveCost *= 2;
+                }
+                if (MoveCost < NeighborNode.igCost || !OpenList.Contains(NeighborNode))
+                {
+                    NeighborNode.igCost = MoveCost;
+                    NeighborNode.ihCost = GetManhattenDistance(NeighborNode, targetNode);
+                    NeighborNode.parentNode = CurrentNode;
+
+                    if (!OpenList.Contains(NeighborNode))
+                    {
+                        OpenList.Add(NeighborNode);
+                    }
+                }
+            }
+        }
+    }
+
+    public void FindPathAlt(Vector3 starter, Vector3 target)
+    {
+        Node startNode = gridReference.NodeFromWorldPoint(starter);
+        Node targetNode = gridReference.NodeFromWorldPoint(target);
+
+        List<Node> OpenList = new List<Node>();
+        HashSet<Node> ClosedList = new HashSet<Node>();
+
+        OpenList.Add(startNode);
+
+        while (OpenList.Count > 0)
+        {
+            Node CurrentNode = OpenList[0];
+            for (int i = 1; i < OpenList.Count; i++)
+            {
+                if (OpenList[i].FCost < CurrentNode.FCost || OpenList[i].FCost == CurrentNode.FCost && OpenList[i].ihCost < CurrentNode.ihCost)//If the f cost of that object is less than or equal to the f cost of the current node
+                {
+                    CurrentNode = OpenList[i];
+                }
+            }
+            OpenList.Remove(CurrentNode);
+            ClosedList.Add(CurrentNode);
+
+            if (CurrentNode == targetNode)
+            {
+                GetFinalPath(startNode, targetNode);
+            }
+
+            foreach (Node NeighborNode in gridReference.GetNeighboringNodes(CurrentNode))
+            {
+                //if i add water reconigcion it should be here
+                if (NeighborNode.isNotWall || ClosedList.Contains(NeighborNode))
                 {
                     continue;
                 }

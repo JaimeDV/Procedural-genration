@@ -16,30 +16,15 @@ public class S_RandomMove : MonoBehaviour
     [SerializeField]
     private float maxTimer;
 
-    private bool calm;
-
-    [SerializeField]
-    private GameObject humanCollider;
-
-    [SerializeField]
-    private GameObject self;
-
-    [SerializeField]
-    private GameObject radious;
-
-    public static event System.Action<GameObject, GameObject> startZombieChase;
 
     private void Start()
     {
         grid = GetComponent<Grid>();
-        calm = true;
     }
 
     private void Update()
     {
-
-        if (calm)
-        {
+       
             timer -= 1 * Time.deltaTime;
             if (timer < 0)
             {
@@ -47,17 +32,20 @@ public class S_RandomMove : MonoBehaviour
                 float random = Random.Range(minTimer, maxTimer);
                 timer += random;
             }
-        }
+        
     }
 
     private Node setPaths()
     {
-        foreach (Node node in grid.nodeArray)
+        if (grid.nodeArray != null)
         {
-            float random = Random.Range(0, 10000);
-            if (random < 5 && node.isNotWall)
+            foreach (Node node in grid.nodeArray)
             {
-                return node;
+                float random = Random.Range(0, 10000);
+                if (random < 5 && node.isNotWall)
+                {
+                    return node;
+                }
             }
         }
         return null;
@@ -76,8 +64,4 @@ public class S_RandomMove : MonoBehaviour
             changePath();
         }
     }
-
-   
-    
-  
 }
