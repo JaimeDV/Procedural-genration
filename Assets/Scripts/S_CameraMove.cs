@@ -8,6 +8,7 @@ public class S_CameraMove : MonoBehaviour
 
     /// <summary>
     /// Moves the camera + and - zooms
+    /// unsued since is now first person
     /// </summary>
     /// 
     private Vector3 startPosition;

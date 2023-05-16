@@ -3,6 +3,10 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerControler : MonoBehaviour
 {
+
+    /// <summary>
+    /// A player controler from a previous game
+    /// </summary>
     [SerializeField]
     private float speed;
 

@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class GroudDestroyer : MonoBehaviour
 {
+    /// <summary>
+    /// eliminate the ground used to generate the A* grid
+    /// </summary>
 
     private void Eliminate()
     {

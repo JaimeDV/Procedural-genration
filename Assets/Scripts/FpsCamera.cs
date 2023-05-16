@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class FpsCamera : MonoBehaviour
 {
+
+    /// <summary>
+    /// a controler used in a previous game
+    /// </summary>
     [SerializeField]
     private float sensitivity = 10F;
 
