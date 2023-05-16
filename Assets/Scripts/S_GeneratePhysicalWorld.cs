@@ -9,6 +9,9 @@ public class S_GeneratePhysicalWorld : MonoBehaviour
     private GameObject wall;
 
     [SerializeField]
+    private GameObject tree;
+
+    [SerializeField]
     private GameObject ground;
 
     [SerializeField]
@@ -36,7 +39,6 @@ public class S_GeneratePhysicalWorld : MonoBehaviour
             foes.Add(foe.gameObject.transform.GetChild(0).gameObject);
             Debug.Log(foe.gameObject.transform.GetChild(0).gameObject);
         }
-        Debug.Log(foes.Count + "foes ");
     }
 
     private void GeneratePhysicalWordl()
@@ -48,7 +50,9 @@ public class S_GeneratePhysicalWorld : MonoBehaviour
             {
                 if (node.isNotWall)
                 {
+                    
                     Instantiate(ground, node.position, gameObject.transform.rotation);
+                  
                 }
                 else
                 {
@@ -72,6 +76,7 @@ public class S_GeneratePhysicalWorld : MonoBehaviour
                 {
                     Instantiate(pickUp, node.position + new Vector3(0, 4.4f, 0), gameObject.transform.rotation);
                 }
+
                 else
                 {
                     random = Random.Range(70, 300);
@@ -90,6 +95,14 @@ public class S_GeneratePhysicalWorld : MonoBehaviour
                         }
                         //Instantiate(enemy, node.position + new Vector3(0, 6, 0), gameObject.transform.rotation);
                     }
+                }
+
+                 random = Random.Range(0, 300);
+                randomFill = Random.Range(0, 100);
+
+                if (random <= randomFill && node.isNotWall)
+                {
+                    Instantiate(tree, node.position + new Vector3(0, 14, 0), gameObject.transform.rotation);
                 }
             }
         }

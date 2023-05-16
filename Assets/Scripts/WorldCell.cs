@@ -14,8 +14,8 @@ public class WorldCell : MonoBehaviour
     static Color RandomColor;
     static bool colorGenerated=false;
     public bool isEmpty;
- 
-
+    [SerializeField]
+    private Vector3 offset;
     public void InstantiateCell(int x, int y, Vector2 cellSize)
     {
        
@@ -76,8 +76,12 @@ public class WorldCell : MonoBehaviour
         }
         SetColor(RandomColor);
         //generates cube in the walkable path for the A* to use
-        var cubi = Instantiate(cube, gameObject.transform.position + new Vector3(Metrics.cellSize.y/2,0, Metrics.cellSize.x/2), gameObject.transform.rotation);
-        cubi.transform.localScale = new Vector3(Metrics.cellSize.y, Metrics.cellSize.x, Metrics.cellSize.y);
+        var random = Random.Range(60, 300);
+        var randomFill = Random.Range(0, 100);
+
+
+            var cubi = Instantiate(cube, gameObject.transform.position + new Vector3(Metrics.cellSize.y / 2, 0, Metrics.cellSize.x / 2) + offset, gameObject.transform.rotation);
+            cubi.transform.localScale = new Vector3(Metrics.cellSize.y, Metrics.cellSize.x, Metrics.cellSize.y);
     }
 
     public Vector2Int GetCoordinates()

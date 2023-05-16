@@ -124,7 +124,7 @@ public class WorldGenerator : MonoBehaviour
                         var randomFill = Random.Range(0, 100);
                         if (random <= randomFill)
                         {
-                            Debug.Log("Closing");
+                           
                             cell.Open();
                         }
                     }

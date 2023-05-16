@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class S_RandomMove : MonoBehaviour
 {
+    [SerializeField]
     private Grid grid;
 
     [SerializeField]
@@ -15,11 +16,13 @@ public class S_RandomMove : MonoBehaviour
 
     [SerializeField]
     private float maxTimer;
-
+     /// <summary>
+     /// updated version of random move, only puts the endpoint on nonwalls 
+     /// </summary>
 
     private void Start()
     {
-        grid = GetComponent<Grid>();
+        //grid = GetComponent<Grid>();
     }
 
     private void Update()

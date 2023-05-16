@@ -36,12 +36,15 @@ public class S_ModePlayer : MonoBehaviour
     private Vector3 cuarrentNodeDistance;
     private Vector3 velocity;
 
+
     public static System.Action <Vector3, Vector3> generateFinal;
+    public static System.Action<GameObject, GameObject> RequestPath;
+
 
     private void Start()
     {
-      
-        finalPath = grid.FinalPath;
+
+        //finalPath = grid.FinalPath;
         CheckNode();
         velocity = Vector3.zero;
     }
@@ -54,13 +57,15 @@ public class S_ModePlayer : MonoBehaviour
             if (startDelay > 5)
             {
                 //grid = GetComponent<Grid>();
-                finalPath = grid.FinalPath;
+                RequestPath(this.gameObject ,endPoint);
+                //finalPath = grid.FinalPath;
                 //finalPath = S_Pathfinding.
                 CheckNode();
             }
+            
             MoveToTarget();
-        
-       
+            //RequestPath(this.gameObject ,endPoint);
+
     }
 
     private void CheckNode()
@@ -110,7 +115,24 @@ public class S_ModePlayer : MonoBehaviour
         startDelay = 0;
     }
 
+    private void recivePath(GameObject SentendPoint, List<Node> path)
+    {
+        if(SentendPoint == endPoint)
+        { 
+            finalPath=path;
+        }
+       
+    }
+
+    private void OnEnable()
+    {
+        S_Pathfinding.SendPath += recivePath;
+    }
+    private void OnDisable()
+    {
+        S_Pathfinding.SendPath -= recivePath;
+    }
     
 
-  
+
 }
