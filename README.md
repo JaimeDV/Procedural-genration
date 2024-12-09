@@ -1,7 +1,7 @@
 # Procedural Generation
 
-Simple overview of use/purpose.
+Created as an university proyect, Generates an island using a mix of cellular automata & Drunkard's Walk.
 
-## Description
+adapts a the A* created in **https://github.com/JaimeDV/A-estrella/blob/main/README.md** to populate the island 
 
-Created as an university proyect, Generates a world using a mix of cellular automata & Drunkard's Walk, adapts a A* grid to enable npc to traverse the randomly generated world 
+![Sin título](https://github.com/user-attachments/assets/589007c3-e089-4b3e-a36e-8f74d78951ac)
